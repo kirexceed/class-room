@@ -1,9 +1,10 @@
-import React, { useEffect, useState } from "react"; 
+import React, { useEffect, useState } from "react";
 import "./App.css";
 import { getTables, getUsers } from "./api";
 
 function App() {
   const [tables, setTables] = useState([]);
+  const [error, setError] = useState(null);
 
   useEffect(async () => {
     Promise.all([getTables, getUsers]).then(([tables, users]) => {
@@ -15,10 +16,13 @@ function App() {
           };
         })
       );
-    });
+    }).catch(er => {
+      setError(er.message)
+    })
   }, []);
 
   console.log(tables);
+  if (error) return <span>Error: {error}</span>
   return (
     <div className="mainContainer">
       {tables &&
