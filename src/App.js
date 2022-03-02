@@ -5,8 +5,11 @@ import { getTables, getUsers } from "./api";
 function App() {
   const [tables, setTables] = useState([]);
   const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(false);
 
-  useEffect(async () => {
+
+  const loadData = () => {
+    setLoading(true)
     Promise.all([getTables, getUsers]).then(([tables, users]) => {
       setTables(
         tables.map((table) => {
@@ -18,14 +21,20 @@ function App() {
       );
     }).catch(er => {
       setError(er.message)
+    }).finally(() => {
+      setLoading(false)
     })
+  }
+
+  useEffect(async () => {
+    loadData()
   }, []);
 
   console.log(tables);
   if (error) return <span>Error: {error}</span>
   return (
     <div className="mainContainer">
-      {tables &&
+      {loading ? <div className="loading">загрузочка</div> : tables &&
         tables.map((table) => {
           const divStyle = {
             position: "absolute",
@@ -37,7 +46,7 @@ function App() {
 
           return (
             <div key={table.id} className={table.type} style={divStyle}>
-              {table.users.map((user) => (
+              {!!table.users.length && table.users.map((user) => (
                 <img key={user.id} src={user.avatar} />
               ))}
             </div>
